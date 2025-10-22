@@ -2,39 +2,52 @@ using UnityEngine;
 
 public class CubeExploder : MonoBehaviour
 {
-    [SerializeField] private GameObject _cubePrefab;
-    [SerializeField] private float _splitChance = 1f;
-    [SerializeField] private float _divisorSplitChance = 0.5f;
-    [SerializeField] private float _scaleFactor = 0.5f;
-    [SerializeField] private int _minChildren = 2;
-    [SerializeField] private int _maxChildren = 6;
-    [SerializeField] private float _explosionForce = 5f;
-    [SerializeField] private float _explosionRadius = 2f;
+    [SerializeField] private CubeFactory factory;    
+    [SerializeField] private float explosionForce = 5f;
+    [SerializeField] private float explosionRadius = 2f;
+    
+    private float splitChance = 1f;
+    private float divisorSplitChance = 0.5f;
+    private float scaleFactor = 0.5f;
+    private int minChildren = 2;
+    private int maxChildren = 6;
+
 
     private void OnMouseDown()
     {
-        if (Random.value <= _splitChance) 
+        if (Random.value > splitChance)
         {
-            int count = Random.Range(_minChildren, _maxChildren + 1);
+            Destroy(gameObject);
+            
+            return;
+        }
 
-            for (int i = 0; i < count; i++) 
-            {
-                GameObject child = Instantiate(_cubePrefab, transform.position, Random.rotation);
-                child.transform.localScale = transform.localScale * _scaleFactor;
+        int childCount = Random.Range(minChildren, maxChildren + 1);
+        float childChance = Mathf.Clamp01(splitChance * divisorSplitChance);
 
-                child.GetComponent<Renderer>().material.color = Random.ColorHSV();
+        for (int i = 0; i < childCount; i++)
+        {
+            Vector3 childScale = transform.localScale * scaleFactor;
+            GameObject childInstance = factory.Spawn(transform.position, Random.rotation, childScale);
 
-                child.GetComponent<CubeExploder>().SetSplitChance(_splitChance * _divisorSplitChance);
+            CubeExploder childExploder = childInstance.GetComponent<CubeExploder>();
+            childExploder.SetSplitChance(childChance);
+            childExploder.SetFactory(factory);
 
-                child.GetComponent<Rigidbody>().AddExplosionForce(_explosionForce, transform.position, _explosionRadius);
-            }
+            Exploder childPhysics = childInstance.GetComponent<Exploder>();
+            childPhysics.ExplodeFrom(transform.position, explosionForce, explosionRadius);
         }
 
         Destroy(gameObject);
     }
 
-    public void SetSplitChance(float newChance) 
+    public void SetSplitChance(float newChance)
     {
-        _splitChance = Mathf.Clamp01(newChance);
+        splitChance = Mathf.Clamp01(newChance);
+    }
+
+    public void SetFactory(CubeFactory newFactory)
+    {
+        factory = newFactory;
     }
 }
