@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class CubeFactory : MonoBehaviour
 {
-    [SerializeField] private GameObject cubePrefab;
+    [SerializeField] private GameObject _cubePrefab;
 
     public GameObject Spawn(Vector3 position, Quaternion rotation, Vector3 targetLocalScale)
     {
-        GameObject cubeInstance = Instantiate(cubePrefab, position, rotation);
+        GameObject cubeInstance = Instantiate(_cubePrefab, position, rotation);
         cubeInstance.transform.localScale = targetLocalScale;
 
         cubeInstance.GetComponent<Renderer>().material.color = Random.ColorHSV();
