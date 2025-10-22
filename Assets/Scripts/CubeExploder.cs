@@ -2,40 +2,40 @@ using UnityEngine;
 
 public class CubeExploder : MonoBehaviour
 {
-    [SerializeField] private CubeFactory factory;    
-    [SerializeField] private float explosionForce = 5f;
-    [SerializeField] private float explosionRadius = 2f;
+    [SerializeField] private CubeFactory _factory;    
+    [SerializeField] private float _explosionForce = 5f;
+    [SerializeField] private float _explosionRadius = 2f;
     
-    private float splitChance = 1f;
-    private float divisorSplitChance = 0.5f;
-    private float scaleFactor = 0.5f;
-    private int minChildren = 2;
-    private int maxChildren = 6;
+    private float _splitChance = 1f;
+    private float _divisorSplitChance = 0.5f;
+    private float _scaleFactor = 0.5f;
+    private int _minChildren = 2;
+    private int _maxChildren = 6;
 
 
     private void OnMouseDown()
     {
-        if (Random.value > splitChance)
+        if (Random.value > _splitChance)
         {
             Destroy(gameObject);
             
             return;
         }
 
-        int childCount = Random.Range(minChildren, maxChildren + 1);
-        float childChance = Mathf.Clamp01(splitChance * divisorSplitChance);
+        int childCount = Random.Range(_minChildren, _maxChildren + 1);
+        float childChance = Mathf.Clamp01(_splitChance * _divisorSplitChance);
 
         for (int i = 0; i < childCount; i++)
         {
-            Vector3 childScale = transform.localScale * scaleFactor;
-            GameObject childInstance = factory.Spawn(transform.position, Random.rotation, childScale);
+            Vector3 childScale = transform.localScale * _scaleFactor;
+            GameObject childInstance = _factory.Spawn(transform.position, Random.rotation, childScale);
 
             CubeExploder childExploder = childInstance.GetComponent<CubeExploder>();
             childExploder.SetSplitChance(childChance);
-            childExploder.SetFactory(factory);
+            childExploder.SetFactory(_factory);
 
             Exploder childPhysics = childInstance.GetComponent<Exploder>();
-            childPhysics.ExplodeFrom(transform.position, explosionForce, explosionRadius);
+            childPhysics.ExplodeFrom(transform.position, _explosionForce, _explosionRadius);
         }
 
         Destroy(gameObject);
@@ -43,11 +43,11 @@ public class CubeExploder : MonoBehaviour
 
     public void SetSplitChance(float newChance)
     {
-        splitChance = Mathf.Clamp01(newChance);
+        _splitChance = Mathf.Clamp01(newChance);
     }
 
     public void SetFactory(CubeFactory newFactory)
     {
-        factory = newFactory;
+        _factory = newFactory;
     }
 }
